@@ -349,8 +349,7 @@ tr.selected-row .emd-nm{color:var(--green);font-weight:700;}
   #search-clear,
   #search-results,
   #btn-all,
-  #dl-wrap,
-  #hdr button,
+    #hdr button,
   #map-controls,
   #map-info,
   #map-legend,
@@ -635,6 +634,41 @@ tr.selected-row .emd-nm{color:var(--green);font-weight:700;}
 
 /* 스크린에서는 print-footer 숨김 */
 #print-footer { display: none; }
+
+/* ══════════════════════════════════════════════════════════════
+   [v22 · 요청 1] 표시 화면 폰트 통일
+   우측 데이터 패널(#stats)과 읍면동 상세 모달(#detail-box)의
+   모든 텍스트를 굵기 400(일반) · 검은색(#111)으로 통일.
+   ※ 어두운 배경 영역(모달 헤더·표 머리글·선택바)은 가독성을 위해 제외
+   ※ 막대그래프·태그의 '배경색'은 유지 (글자색만 통일)
+   ══════════════════════════════════════════════════════════════ */
+#stats, #stats *,
+#detail-box, #detail-box *{
+  font-weight:400 !important;
+}
+#stats-body, #stats-body *,
+#stats-body *::before, #stats-body *::after,
+#nav, #nav *,
+#detail-body, #detail-body *,
+#detail-body *::before, #detail-body *::after{
+  color:#111 !important;
+}
+/* 어두운 배경 위 텍스트는 흰색 유지 */
+#detail-body .uv-table thead th,
+#detail-body .uv-table thead tr.uv-subhdr th{ color:#e8eef4 !important; }
+/* 탭 선택 표시는 글자색 대신 밑줄(테두리)로 유지 */
+.nav-cat.active, .nav-sub.active, .nav-menu-btn{ border-bottom-color:var(--green) !important; }
+.nav-cat span, .nav-menu-btn span{ background:#f0f0f0 !important; }
+
+@media print{
+  #stats, #stats *, #detail-box, #detail-box *,
+  .print-page, .print-page *{ font-weight:400 !important; }
+  #stats-body, #stats-body *, #nav, #nav *,
+  #detail-body, #detail-body *,
+  .print-page, .print-page *{ color:#111 !important; }
+  #detail-body .uv-table thead th,
+  #detail-body .uv-table thead tr.uv-subhdr th{ color:#e8eef4 !important; }
+}
 </style>
 </head>
 <body>
@@ -649,18 +683,29 @@ tr.selected-row .emd-nm{color:var(--green);font-weight:700;}
   <button id="btn-all" onclick="openAllStats()">📋 자료설명</button>
   <div id="dl-wrap" style="position:relative;flex-shrink:0">
     <button id="btn-dl" onclick="toggleDlMenu(event)">⬇ 자료 다운로드</button>
-    <div id="dl-menu" style="display:none;position:absolute;top:100%;left:0;margin-top:4px;background:rgba(10,30,53,.97);border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:5px;min-width:268px;z-index:99999;flex-direction:column;gap:3px">
+    <div id="dl-menu" style="display:none;position:absolute;top:100%;left:0;margin-top:4px;background:rgba(10,30,53,.97);border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:5px;min-width:305px;z-index:99999;flex-direction:column;gap:2px;box-shadow:0 8px 24px rgba(0,0,0,.4)">
+      <div style="font-size:9px;color:rgba(255,255,255,.45);padding:3px 6px 2px">SHP 다운로드 (QGIS·ArcGIS · EPSG:4326 · UTF-8)</div>
+      <button class="grid-opt" onclick="dlShpEmd()">🗺 읍면동 경계 + 전체지표 (폴리곤)</button>
+      <button class="grid-opt" onclick="dlShpPt()">📍 전체 시설 포인트</button>
+      <button class="grid-opt" onclick="dlShpGrid()">⬛ 250m 격자 인구 (폴리곤)</button>
+      <button class="grid-opt" onclick="dlGeoJSON()">🧭 읍면동 경계 GeoJSON</button>
+      <div style="height:1px;background:rgba(255,255,255,.12);margin:4px 2px"></div>
+      <div style="font-size:9px;color:rgba(255,255,255,.45);padding:3px 6px 2px">통합본 (레이어 합본)</div>
+      <button class="grid-opt" onclick="dlAllGeoJSON()">🧩 전체 통합 GeoJSON (점+면 한 파일)</button>
+      <button class="grid-opt" onclick="dlMergedPolyShp()">🧱 통합 폴리곤 SHP (읍면동+격자)</button>
+      <div style="height:1px;background:rgba(255,255,255,.12);margin:4px 2px"></div>
       <div style="font-size:9px;color:rgba(255,255,255,.45);padding:3px 6px 2px">CSV 다운로드 (UTF-8 · 엑셀 호환)</div>
-      <button class="grid-opt" onclick="dlPop()">👥 읍면동 인구·이동·외국인</button>
-      <button class="grid-opt" onclick="dlAge()">🧒 읍면동 연령별 인구</button>
-      <button class="grid-opt" onclick="dlGrid()">⬛ 250m 격자 인구(연령별)</button>
+      <button class="grid-opt" onclick="dlEmdCSV()">📊 읍면동 전체지표 (107개 항목)</button>
+      <button class="grid-opt" onclick="dlPop()">👥 인구·이동·외국인</button>
+      <button class="grid-opt" onclick="dlAge()">🧒 연령별 인구</button>
+      <button class="grid-opt" onclick="dlGrid()">⬛ 250m 격자 인구</button>
       <button class="grid-opt" onclick="dlBus()">🚌 버스정류장 좌표</button>
       <button class="grid-opt" onclick="dlPk()">🅿 주차장 좌표·면수</button>
-      <button class="grid-opt" onclick="dlSports()">🏟 체육시설 좌표(공공·민간)</button>
+      <button class="grid-opt" onclick="dlSports()">🏟 체육시설 좌표</button>
+      <button class="grid-opt" onclick="dlFieldDef()">📖 SHP 필드정의서</button>
       <div style="height:1px;background:rgba(255,255,255,.12);margin:4px 2px"></div>
-      <div style="font-size:9px;color:rgba(255,255,255,.45);padding:3px 6px 2px">GIS 포맷 다운로드</div>
-      <button class="grid-opt" onclick="dlGeoJSON()">🗺 읍면동 경계 GeoJSON (SHP 변환용)</button>
-      <div style="font-size:8.5px;color:rgba(255,255,255,.35);padding:3px 6px 1px">※ GeoJSON은 QGIS·ArcGIS에서 SHP로 바로 변환 가능</div>
+      <button class="grid-opt" style="background:rgba(45,138,85,.35);border-color:rgba(74,222,128,.5)" onclick="dlAllPackage()">📦 전체 패키지 (SHP+CSV 한번에)</button>
+      <div style="font-size:8.5px;color:rgba(255,255,255,.35);padding:3px 6px 1px">※ SHP는 .shp/.shx/.dbf/.prj/.cpg 5종 ZIP으로 제공</div>
     </div>
   </div>
   <div style="flex:1"></div>
@@ -1329,26 +1374,428 @@ function toggleDistrict(){
   else{geoLayer&&map.removeLayer(geoLayer);labelMarkers.forEach(m=>map.removeLayer(m));btn.classList.remove('on');}
 }
 
-// ══ 자료 다운로드 (CSV) ══
-function toggleDlMenu(e){
-  e.stopPropagation();
-  const m=document.getElementById('dl-menu');
-  const open=m.style.display!=='none';
-  m.style.display=open?'none':'flex';
-  if(!open)document.addEventListener('click',()=>m.style.display='none',{once:true});
+// ══════════════════════════════════════════════════════════════════════
+// [v23] 자료 다운로드 — CSV + Shapefile(SHP) 브라우저 내 생성
+//   · 별도 프로그램 없이 HTML 파일만으로 QGIS용 SHP를 만들어 내려받습니다.
+//   · 좌표계 EPSG:4326(WGS84) · 인코딩 UTF-8(.cpg 동봉)
+//   · DL_ENABLED=false 로 두면 다운로드 버튼이 감춰집니다(외부 배포용).
+// ══════════════════════════════════════════════════════════════════════
+const DL_ENABLED = true;
+
+const PRJ_WGS84 = 'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",'
+  + '6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]';
+
+// ── 공통 유틸 ──────────────────────────────────────────────────────────
+const _ENC = new TextEncoder();
+function _u8(s){ return _ENC.encode(s==null?'':String(s)); }
+function _utf8Cut(s, maxBytes){          // 글자 경계를 지켜 자르기
+  let b=_u8(s);
+  if(b.length<=maxBytes) return b;
+  let cut=maxBytes;
+  while(cut>0 && (b[cut]&0xC0)===0x80) cut--;
+  return b.slice(0,cut);
 }
-function dlCSV(name,header,rows){
-  const esc=v=>{v=(v==null?'':String(v));return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
-  const csv='\uFEFF'+[header,...rows].map(r=>r.map(esc).join(',')).join('\r\n');
+function _saveBlob(blob, filename){
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-  a.download=name;document.body.appendChild(a);a.click();
-  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
+  a.href=URL.createObjectURL(blob); a.download=filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();}, 1000);
+}
+
+// ── CRC32 ─────────────────────────────────────────────────────────────
+const _CRCT=(()=>{const t=new Uint32Array(256);
+  for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c>>>0;}
+  return t;})();
+function _crc32(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=_CRCT[(c^u8[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+
+// ── ZIP 생성 (deflate 지원 시 압축, 미지원 시 무압축 저장) ──────────────
+async function _deflate(u8){
+  if(typeof CompressionStream==='undefined') return null;
+  try{
+    const cs=new CompressionStream('deflate-raw');
+    const w=cs.writable.getWriter(); w.write(u8); w.close();
+    const buf=await new Response(cs.readable).arrayBuffer();
+    return new Uint8Array(buf);
+  }catch(e){ return null; }
+}
+async function zipBuild(files){          // files: [{name, data:Uint8Array}]
+  const parts=[], central=[]; let offset=0;
+  for(const f of files){
+    const nameB=_u8(f.name), raw=f.data, crc=_crc32(raw);
+    let comp=await _deflate(raw), method=8;
+    if(!comp || comp.length>=raw.length){ comp=raw; method=0; }
+    const lh=new Uint8Array(30+nameB.length), lv=new DataView(lh.buffer);
+    lv.setUint32(0,0x04034b50,true); lv.setUint16(4,20,true); lv.setUint16(6,0x0800,true);
+    lv.setUint16(8,method,true); lv.setUint16(10,0,true); lv.setUint16(12,0x2821,true);
+    lv.setUint32(14,crc,true); lv.setUint32(18,comp.length,true); lv.setUint32(22,raw.length,true);
+    lv.setUint16(26,nameB.length,true); lv.setUint16(28,0,true);
+    lh.set(nameB,30);
+    parts.push(lh, comp);
+    const ch=new Uint8Array(46+nameB.length), cv=new DataView(ch.buffer);
+    cv.setUint32(0,0x02014b50,true); cv.setUint16(4,20,true); cv.setUint16(6,20,true);
+    cv.setUint16(8,0x0800,true); cv.setUint16(10,method,true);
+    cv.setUint16(12,0,true); cv.setUint16(14,0x2821,true);
+    cv.setUint32(16,crc,true); cv.setUint32(20,comp.length,true); cv.setUint32(24,raw.length,true);
+    cv.setUint16(28,nameB.length,true); cv.setUint32(42,offset,true);
+    ch.set(nameB,46);
+    central.push(ch);
+    offset += lh.length + comp.length;
+  }
+  let cdSize=0; central.forEach(c=>cdSize+=c.length);
+  const end=new Uint8Array(22), ev=new DataView(end.buffer);
+  ev.setUint32(0,0x06054b50,true);
+  ev.setUint16(8,files.length,true); ev.setUint16(10,files.length,true);
+  ev.setUint32(12,cdSize,true); ev.setUint32(16,offset,true);
+  return new Blob([...parts,...central,end],{type:'application/zip'});
+}
+
+// ── DBF(속성테이블) 생성 ───────────────────────────────────────────────
+// fields: [[name, 'C'|'N', len, dec], ...]
+function dbfBuild(fields, rows){
+  const recLen = 1 + fields.reduce((a,f)=>a+f[2],0);
+  const hdrLen = 32 + 32*fields.length + 1;
+  const buf = new Uint8Array(hdrLen + recLen*rows.length + 1);
+  const dv  = new DataView(buf.buffer);
+  const now = new Date();
+  buf[0]=0x03; buf[1]=now.getFullYear()-1900; buf[2]=now.getMonth()+1; buf[3]=now.getDate();
+  dv.setUint32(4, rows.length, true);
+  dv.setUint16(8, hdrLen, true);
+  dv.setUint16(10, recLen, true);
+  let p=32;
+  fields.forEach(f=>{
+    buf.set(_utf8Cut(f[0],10), p);
+    buf[p+11]=f[1].charCodeAt(0);
+    buf[p+16]=f[2]; buf[p+17]=f[3]||0;
+    p+=32;
+  });
+  buf[p++]=0x0D;
+  rows.forEach(r=>{
+    buf[p++]=0x20;
+    fields.forEach((f,i)=>{
+      const w=f[2];
+      if(f[1]==='C'){
+        const b=_utf8Cut(r[i]==null?'':String(r[i]), w);
+        buf.set(b,p); for(let k=b.length;k<w;k++) buf[p+k]=0x20;
+      }else{
+        let n=Number(r[i]); if(!isFinite(n)) n=0;
+        let s=n.toFixed(f[3]||0);
+        if(s.length>w) s=n.toFixed(0).slice(0,w);
+        const b=_u8(s), off=w-b.length;
+        for(let k=0;k<off;k++) buf[p+k]=0x20;
+        buf.set(b,p+off);
+      }
+      p+=w;
+    });
+  });
+  buf[p]=0x1A;
+  return buf;
+}
+
+// ── SHP/SHX 생성 (1=POINT, 5=POLYGON) ─────────────────────────────────
+function _ringArea(r){ let a=0; for(let i=0,j=r.length-1;i<r.length;j=i++) a+=r[j][0]*r[i][1]-r[i][0]*r[j][1]; return a/2; }
+function _orient(ring, wantCW){
+  const cw=_ringArea(ring)<0;
+  return cw===wantCW ? ring : ring.slice().reverse();
+}
+function shpBuild(shapeType, shapes){
+  // POINT   : shapes = [[x,y], ...]
+  // POLYGON : shapes = [ [ring, hole1, ...], ... ]   (ring = [[x,y],...])
+  const recs=[]; let minX=1e18,minY=1e18,maxX=-1e18,maxY=-1e18;
+  shapes.forEach(sh=>{
+    if(shapeType===1){
+      const [x,y]=sh;
+      minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);
+      const c=new Uint8Array(20), v=new DataView(c.buffer);
+      v.setInt32(0,1,true); v.setFloat64(4,x,true); v.setFloat64(12,y,true);
+      recs.push(c);
+    }else{
+      const rr = Array.isArray(sh) ? {rings:sh, outer:sh.map((_,i)=>i===0)} : sh;
+      const rings = rr.rings.map((r,i)=>_orient(r, rr.outer[i]));
+      let np=0, bx0=1e18,by0=1e18,bx1=-1e18,by1=-1e18;
+      rings.forEach(r=>{ np+=r.length; r.forEach(([x,y])=>{
+        if(x<bx0)bx0=x; if(x>bx1)bx1=x; if(y<by0)by0=y; if(y>by1)by1=y; }); });
+      minX=Math.min(minX,bx0);maxX=Math.max(maxX,bx1);minY=Math.min(minY,by0);maxY=Math.max(maxY,by1);
+      const len=44+4*rings.length+16*np;
+      const c=new Uint8Array(len), v=new DataView(c.buffer);
+      v.setInt32(0,5,true);
+      v.setFloat64(4,bx0,true); v.setFloat64(12,by0,true);
+      v.setFloat64(20,bx1,true); v.setFloat64(28,by1,true);
+      v.setInt32(36,rings.length,true); v.setInt32(40,np,true);
+      let o=44, acc=0;
+      rings.forEach(r=>{ v.setInt32(o,acc,true); o+=4; acc+=r.length; });
+      rings.forEach(r=>r.forEach(([x,y])=>{ v.setFloat64(o,x,true); v.setFloat64(o+8,y,true); o+=16; }));
+      recs.push(c);
+    }
+  });
+  let total=100; recs.forEach(c=>total+=8+c.length);
+  const shp=new Uint8Array(total), sv=new DataView(shp.buffer);
+  const shx=new Uint8Array(100+8*recs.length), xv=new DataView(shx.buffer);
+  const hdr=(v,words)=>{
+    v.setInt32(0,9994); v.setInt32(24,words);
+    v.setInt32(28,1000,true); v.setInt32(32,shapeType,true);
+    v.setFloat64(36,minX,true); v.setFloat64(44,minY,true);
+    v.setFloat64(52,maxX,true); v.setFloat64(60,maxY,true);
+  };
+  hdr(sv,total/2); hdr(xv,(100+8*recs.length)/2);
+  let off=100;
+  recs.forEach((c,i)=>{
+    sv.setInt32(off,i+1); sv.setInt32(off+4,c.length/2);
+    shp.set(c,off+8);
+    xv.setInt32(100+8*i, off/2); xv.setInt32(104+8*i, c.length/2);
+    off += 8+c.length;
+  });
+  return {shp, shx};
+}
+function shpFiles(base, shapeType, shapes, fields, rows){
+  const {shp,shx}=shpBuild(shapeType, shapes);
+  return [
+    {name:base+'.shp', data:shp},
+    {name:base+'.shx', data:shx},
+    {name:base+'.dbf', data:dbfBuild(fields, rows)},
+    {name:base+'.prj', data:_u8(PRJ_WGS84)},
+    {name:base+'.cpg', data:_u8('UTF-8')}
+  ];
+}
+
+// ── 점 → 읍면동 공간조인 ───────────────────────────────────────────────
+let _EMD_IDX=null;
+function _emdIndex(){
+  if(_EMD_IDX) return _EMD_IDX;
+  _EMD_IDX = GEO_DATA.features.map(f=>{
+    const g=f.geometry;
+    const polys = g.type==='Polygon' ? [g.coordinates] : g.coordinates;
+    let x0=1e18,y0=1e18,x1=-1e18,y1=-1e18;
+    polys.forEach(p=>p.forEach(r=>r.forEach(([x,y])=>{
+      if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; })));
+    return {nm:f.properties.nm, rg:f.properties.rg, tp:f.properties.tp, polys, bb:[x0,y0,x1,y1]};
+  });
+  return _EMD_IDX;
+}
+function _inRing(x,y,r){
+  let ins=false;
+  for(let i=0,j=r.length-1;i<r.length;j=i++){
+    const [xi,yi]=r[i],[xj,yj]=r[j];
+    if(((yi>y)!==(yj>y)) && (x < (xj-xi)*(y-yi)/((yj-yi)||1e-15)+xi)) ins=!ins;
+  }
+  return ins;
+}
+function emdOf(lon,lat){
+  const idx=_emdIndex();
+  for(const f of idx){
+    const b=f.bb;
+    if(lon<b[0]-1e-4||lon>b[2]+1e-4||lat<b[1]-1e-4||lat>b[3]+1e-4) continue;
+    for(const poly of f.polys){
+      if(!_inRing(lon,lat,poly[0])) continue;
+      let hole=false;
+      for(let k=1;k<poly.length;k++) if(_inRing(lon,lat,poly[k])){hole=true;break;}
+      if(!hole) return f;
+    }
+  }
+  let best=null,bd=1e18;
+  for(const f of idx){
+    const b=f.bb, cx=(b[0]+b[2])/2, cy=(b[1]+b[3])/2;
+    const dd=(cx-lon)**2+(cy-lat)**2;
+    if(dd<bd){bd=dd;best=f;}
+  }
+  return best;
+}
+
+const EMD_FLD=[
+  ['EMD_NM','C',30,0,'읍면동',(nm,d,ed,sw,hl,cu,tr)=>nm],
+  ['SGG_NM','C',20,0,'시',(nm,d,ed,sw,hl,cu,tr)=>d.rg],
+  ['EMD_TP','C',6,0,'유형',(nm,d,ed,sw,hl,cu,tr)=>d.tp],
+  ['POP_21','N',12,0,'주민등록인구 2021',(nm,d,ed,sw,hl,cu,tr)=>d.p21],
+  ['POP_25','N',12,0,'주민등록인구 2025',(nm,d,ed,sw,hl,cu,tr)=>d.p25],
+  ['POP_DIFF','N',12,0,'인구증감 21→25',(nm,d,ed,sw,hl,cu,tr)=>d.pdiff],
+  ['POP_CAGR','N',10,2,'연평균인구증가율(%)',(nm,d,ed,sw,hl,cu,tr)=>d.cagr],
+  ['MID_P21','N',12,0,'연앙인구 2021',(nm,d,ed,sw,hl,cu,tr)=>d.m21],
+  ['MID_P25','N',12,0,'연앙인구 2025',(nm,d,ed,sw,hl,cu,tr)=>d.m25],
+  ['BIRTH_21','N',10,0,'출생아수 2021',(nm,d,ed,sw,hl,cu,tr)=>d.b21],
+  ['BIRTH_25','N',10,0,'출생아수 2025',(nm,d,ed,sw,hl,cu,tr)=>d.b25],
+  ['CBR_21','N',10,2,'조출생률 2021(‰)',(nm,d,ed,sw,hl,cu,tr)=>d.cbr21],
+  ['CBR_25','N',10,2,'조출생률 2025(‰)',(nm,d,ed,sw,hl,cu,tr)=>d.cbr25],
+  ['MOVIN_21','N',12,0,'전입인구 2021',(nm,d,ed,sw,hl,cu,tr)=>d.ji21],
+  ['MOVOUT_21','N',12,0,'전출인구 2021',(nm,d,ed,sw,hl,cu,tr)=>d.jo21],
+  ['NETMOV_21','N',12,0,'순이동인구 2021',(nm,d,ed,sw,hl,cu,tr)=>d.n21],
+  ['MOVIN_25','N',12,0,'전입인구 2025',(nm,d,ed,sw,hl,cu,tr)=>d.ji24],
+  ['MOVOUT_25','N',12,0,'전출인구 2025',(nm,d,ed,sw,hl,cu,tr)=>d.jo24],
+  ['NETMOV_25','N',12,0,'순이동인구 2025',(nm,d,ed,sw,hl,cu,tr)=>d.n24],
+  ['NMR_21','N',10,2,'순인구이동률 2021(%)',(nm,d,ed,sw,hl,cu,tr)=>d.nmr21],
+  ['NMR_25','N',10,2,'순인구이동률 2025(%)',(nm,d,ed,sw,hl,cu,tr)=>d.nmr24],
+  ['FRGN_21','N',10,0,'등록외국인 2021',(nm,d,ed,sw,hl,cu,tr)=>d.f21],
+  ['FRGN_25','N',10,0,'등록외국인 2025',(nm,d,ed,sw,hl,cu,tr)=>d.f24],
+  ['INF_R21','N',10,2,'유아인구비율 2021(%)',(nm,d,ed,sw,hl,cu,tr)=>d['유아율21']],
+  ['INF_R25','N',10,2,'유아인구비율 2025(%)',(nm,d,ed,sw,hl,cu,tr)=>d['유아율25']],
+  ['CHL_R21','N',10,2,'유소년인구비율 2021(%)',(nm,d,ed,sw,hl,cu,tr)=>d['유소율21']],
+  ['CHL_R25','N',10,2,'유소년인구비율 2025(%)',(nm,d,ed,sw,hl,cu,tr)=>d['유소율25']],
+  ['YTH_R21','N',10,2,'청년인구비율 2021(%)',(nm,d,ed,sw,hl,cu,tr)=>d['청년율21']],
+  ['YTH_R25','N',10,2,'청년인구비율 2025(%)',(nm,d,ed,sw,hl,cu,tr)=>d['청년율25']],
+  ['WRK_R21','N',10,2,'생산가능인구비율 2021(%)',(nm,d,ed,sw,hl,cu,tr)=>d['생산율21']],
+  ['WRK_R25','N',10,2,'생산가능인구비율 2025(%)',(nm,d,ed,sw,hl,cu,tr)=>d['생산율25']],
+  ['OLD_R21','N',10,2,'고령인구비율 2021(%)',(nm,d,ed,sw,hl,cu,tr)=>d['노인율21']],
+  ['OLD_R25','N',10,2,'고령인구비율 2025(%)',(nm,d,ed,sw,hl,cu,tr)=>d['노인율25']],
+  ['BIZ_21','N',12,0,'사업체수 2021',(nm,d,ed,sw,hl,cu,tr)=>d.biz21],
+  ['BIZ_23','N',12,0,'사업체수 2023',(nm,d,ed,sw,hl,cu,tr)=>d.biz23],
+  ['EMP_21','N',12,0,'종사자수 2021',(nm,d,ed,sw,hl,cu,tr)=>d.emp21],
+  ['EMP_23','N',12,0,'종사자수 2023',(nm,d,ed,sw,hl,cu,tr)=>d.emp23],
+  ['NEWBIZ_21','N',12,0,'창업기업수 2021',(nm,d,ed,sw,hl,cu,tr)=>d.new21],
+  ['NEWBIZ_23','N',12,0,'창업기업수 2023',(nm,d,ed,sw,hl,cu,tr)=>d.new23],
+  ['ELEM_N','N',12,2,'초등학교 개소',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['e_tot']],
+  ['ELEM_R','N',12,2,'초등학교 인구비율(%)',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['e_rat']],
+  ['ELEM_D','N',12,2,'초등학교 접근거리(m)',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['e_dst']],
+  ['MIDS_N','N',12,2,'중학교 개소',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['m_tot']],
+  ['MIDS_R','N',12,2,'중학교 인구비율(%)',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['m_rat']],
+  ['MIDS_D','N',12,2,'중학교 접근거리(m)',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['m_dst']],
+  ['HIGH_N','N',12,2,'고등학교 개소',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['h_tot']],
+  ['HIGH_R','N',12,2,'고등학교 인구비율(%)',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['h_rat']],
+  ['HIGH_D','N',12,2,'고등학교 접근거리(m)',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['h_dst']],
+  ['ACAD_N','N',12,2,'사설학원 개소',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['s_tot']],
+  ['ACAD_R','N',12,2,'사설학원 인구비율(%)',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['s_rat']],
+  ['ACAD_D','N',12,2,'사설학원 접근거리(m)',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['s_dst']],
+  ['KIND_N','N',12,2,'유치원 개소',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['k_tot']],
+  ['KIND_PUB','N',12,2,'유치원 국립',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['k_pub']],
+  ['KIND_PRV','N',12,2,'유치원 사립',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['k_prv']],
+  ['KIND_R','N',12,2,'유치원 인구비율(%)',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['k_rat']],
+  ['KIND_D','N',12,2,'유치원 접근거리(m)',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['k_dst']],
+  ['DAY_N','N',12,2,'어린이집 개소',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['c_tot']],
+  ['DAY_PUB','N',12,2,'어린이집 국공립',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['c_pub']],
+  ['DAY_PRV','N',12,2,'어린이집 민간',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['c_pvt']],
+  ['DAY_R','N',12,2,'어린이집 인구비율(%)',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['c_rat']],
+  ['DAY_D','N',12,2,'어린이집 접근거리(m)',(nm,d,ed,sw,hl,cu,tr)=>ed&&ed['c_dst']],
+  ['SW_SOC_N','N',12,2,'종합사회복지시설 개소',(nm,d,ed,sw,hl,cu,tr)=>sw&&sw['sw_soc']],
+  ['SW_MUL_N','N',12,2,'다문화가족지원시설 개소',(nm,d,ed,sw,hl,cu,tr)=>sw&&sw['sw_multi']],
+  ['SW_DIS_N','N',12,2,'장애인복지시설 개소',(nm,d,ed,sw,hl,cu,tr)=>sw&&sw['sw_dis']],
+  ['SW_YTH_N','N',12,2,'청소년복지시설 개소',(nm,d,ed,sw,hl,cu,tr)=>sw&&sw['sw_youth']],
+  ['SW_TRN_N','N',12,2,'청소년수련시설 개소',(nm,d,ed,sw,hl,cu,tr)=>sw&&sw['sw_train']],
+  ['SW_CHD_N','N',12,2,'지역아동센터 개소',(nm,d,ed,sw,hl,cu,tr)=>sw&&sw['sw_child']],
+  ['SW_SEN_N','N',12,2,'노인복지관 개소',(nm,d,ed,sw,hl,cu,tr)=>sw&&sw['sw_senior']],
+  ['SW_HOM_N','N',12,2,'재가노인복지시설 개소',(nm,d,ed,sw,hl,cu,tr)=>sw&&sw['sw_home']],
+  ['SW_HAL_N','N',12,2,'노인복지회관 개소',(nm,d,ed,sw,hl,cu,tr)=>sw&&sw['sw_hall']],
+  ['SW_KER_N','N',12,2,'경로당 개소',(nm,d,ed,sw,hl,cu,tr)=>sw&&sw['sw_kero']],
+  ['SW_KER_R','N',12,2,'경로당 인구비율(%)',(nm,d,ed,sw,hl,cu,tr)=>sw&&sw['sw_kero_rat']],
+  ['SW_KER_D','N',12,2,'경로당 접근거리(m)',(nm,d,ed,sw,hl,cu,tr)=>sw&&sw['sw_kero_dst']],
+  ['HL_PHC_N','N',12,2,'보건소 개소',(nm,d,ed,sw,hl,cu,tr)=>hl&&hl['h_phc_cnt']],
+  ['HL_SUB_N','N',12,2,'보건지소·진료소 개소',(nm,d,ed,sw,hl,cu,tr)=>hl&&hl['h_sub_cnt']],
+  ['HL_CLN_N','N',12,2,'병의원 개소',(nm,d,ed,sw,hl,cu,tr)=>hl&&hl['h_cln_cnt']],
+  ['HL_CLN_R','N',12,2,'병의원 인구비율(%)',(nm,d,ed,sw,hl,cu,tr)=>hl&&hl['h_cln_rat']],
+  ['HL_CLN_D','N',12,2,'병의원 접근거리(m)',(nm,d,ed,sw,hl,cu,tr)=>hl&&hl['h_cln_dst']],
+  ['HL_PHM_N','N',12,2,'약국 개소',(nm,d,ed,sw,hl,cu,tr)=>hl&&hl['h_phm_cnt']],
+  ['HL_PHM_R','N',12,2,'약국 인구비율(%)',(nm,d,ed,sw,hl,cu,tr)=>hl&&hl['h_phm_rat']],
+  ['HL_PHM_D','N',12,2,'약국 접근거리(m)',(nm,d,ed,sw,hl,cu,tr)=>hl&&hl['h_phm_dst']],
+  ['HL_HOS_N','N',12,2,'종합병원 개소',(nm,d,ed,sw,hl,cu,tr)=>hl&&hl['h_hos_cnt']],
+  ['HL_HOS_D','N',12,2,'종합병원 접근거리(m)',(nm,d,ed,sw,hl,cu,tr)=>hl&&hl['h_hos_dst']],
+  ['CL_LIB_N','N',12,2,'공공도서관 개소',(nm,d,ed,sw,hl,cu,tr)=>cu&&cu['c_lib']],
+  ['CL_LIBS_N','N',12,2,'작은도서관 개소',(nm,d,ed,sw,hl,cu,tr)=>cu&&cu['c_libs']],
+  ['CL_LC_N','N',12,2,'생활문화센터 개소',(nm,d,ed,sw,hl,cu,tr)=>cu&&cu['c_lc']],
+  ['CL_MUS_N','N',12,2,'박물관 개소',(nm,d,ed,sw,hl,cu,tr)=>cu&&cu['c_mus']],
+  ['CL_ART_N','N',12,2,'미술관 개소',(nm,d,ed,sw,hl,cu,tr)=>cu&&cu['c_art']],
+  ['SPT_N','N',12,2,'체육시설 개소',(nm,d,ed,sw,hl,cu,tr)=>cu&&cu['c_sp_cnt']],
+  ['SPT_R','N',12,2,'체육시설 인구비율(%)',(nm,d,ed,sw,hl,cu,tr)=>cu&&cu['c_sp_rat']],
+  ['SPT_D','N',12,2,'체육시설 접근거리(m)',(nm,d,ed,sw,hl,cu,tr)=>cu&&cu['c_sp_dst']],
+  ['PARK_L_N','N',12,2,'생활공원 개소',(nm,d,ed,sw,hl,cu,tr)=>cu&&cu['c_pl_cnt']],
+  ['PARK_L_R','N',12,2,'생활공원 인구비율(%)',(nm,d,ed,sw,hl,cu,tr)=>cu&&cu['c_pl_rat']],
+  ['PARK_L_D','N',12,2,'생활공원 접근거리(m)',(nm,d,ed,sw,hl,cu,tr)=>cu&&cu['c_pl_dst']],
+  ['PARK_T_N','N',12,2,'주제공원 개소',(nm,d,ed,sw,hl,cu,tr)=>cu&&cu['c_pt_cnt']],
+  ['PARK_T_R','N',12,2,'주제공원 인구비율(%)',(nm,d,ed,sw,hl,cu,tr)=>cu&&cu['c_pt_rat']],
+  ['PARK_T_D','N',12,2,'주제공원 접근거리(m)',(nm,d,ed,sw,hl,cu,tr)=>cu&&cu['c_pt_dst']],
+  ['BUS_N','N',12,2,'버스정류장 개소',(nm,d,ed,sw,hl,cu,tr)=>tr&&tr[3]],
+  ['PK_N','N',12,2,'주차장 개소',(nm,d,ed,sw,hl,cu,tr)=>tr&&tr[4]],
+  ['PK_SPACE','N',12,2,'주차면수',(nm,d,ed,sw,hl,cu,tr)=>tr&&tr[5]],
+  ['PK_FREE','N',12,2,'무료주차장 개소',(nm,d,ed,sw,hl,cu,tr)=>tr&&tr[6]],
+  ['PK_PAID','N',12,2,'유료주차장 개소',(nm,d,ed,sw,hl,cu,tr)=>tr&&tr[7]],
+  ['PK_MIX','N',12,2,'혼합·미상 개소',(nm,d,ed,sw,hl,cu,tr)=>tr&&tr[8]],
+  ['BUS_R','N',12,2,'버스정류장 인구비율(%)',(nm,d,ed,sw,hl,cu,tr)=>tr&&tr[9]],
+  ['BUS_D','N',12,2,'버스정류장 접근거리(m)',(nm,d,ed,sw,hl,cu,tr)=>tr&&tr[10]],
+  ['PK_R','N',12,2,'주차장 인구비율(%)',(nm,d,ed,sw,hl,cu,tr)=>tr&&tr[11]],
+  ['PK_D','N',12,2,'주차장 접근거리(m)',(nm,d,ed,sw,hl,cu,tr)=>tr&&tr[12]]
+];
+
+// ── 레이어 ①: 읍면동 경계 + 전 지표 (폴리곤) ─────────────────────────
+function buildEmdLayer(){
+  const Dm={}; D.forEach(d=>Dm[d.nm]=d);
+  const TRm={}; TRAFFIC_R.forEach(r=>TRm[r[0]]=r);
+  const shapes=[], rows=[];
+  GEO_DATA.features.forEach(f=>{
+    const nm=f.properties.nm, g=f.geometry;
+    const polys = g.type==='Polygon' ? [g.coordinates] : g.coordinates;
+    const rings=[], outer=[];
+    polys.forEach(poly=>poly.forEach((r,i)=>{ rings.push(r.map(p=>[+p[0],+p[1]])); outer.push(i===0); }));
+    shapes.push({rings, outer});
+    const d=Dm[nm]||{}, ed=EDU_M[nm], sw=SW_M[nm], hl=HEALTH_M[nm], cu=CULTURE_M[nm], tr=TRm[nm];
+    rows.push(EMD_FLD.map(fd=>{
+      const v=fd[5](nm,d,ed,sw,hl,cu,tr);
+      return (v==null||v==='') ? (fd[1]==='C'?'':0) : v;
+    }));
+  });
+  return {shapes, rows, fields:EMD_FLD.map(f=>[f[0],f[1],f[2],f[3]])};
+}
+
+// ── 레이어 ②: 시설 포인트 통합 ────────────────────────────────────────
+const FAC_CAT_KO={edu:'교육시설',care:'보육시설',welfare:'사회복지시설',
+  health:'보건의료시설',culture:'문화관광시설',urban:'환경도시교통시설'};
+const FAC_TYPE2CAT={
+ '초등학교':'edu','중학교':'edu','고등학교':'edu','입시학원':'edu',
+ '유치원':'care','어린이집':'care',
+ '종합사회복지시설':'welfare','다문화가족지원시설':'welfare','장애인복지시설':'welfare',
+ '청소년복지시설':'welfare','청소년수련시설':'welfare','지역아동센터':'welfare',
+ '노인복지관':'welfare','재가노인복지시설':'welfare','노인복지회관':'welfare','경로당':'welfare',
+ '보건소':'health','보건지소':'health','보건진료소':'health','병의원':'health','약국':'health','종합병원':'health',
+ '공공도서관':'culture','작은도서관':'culture','생활문화센터':'culture','박물관':'culture','미술관':'culture',
+ '공공체육시설':'culture','민간체육시설':'culture','생활공원':'culture','주제공원':'culture',
+ '소방서':'urban','119안전센터':'urban','경찰서':'urban','지구대':'urban','파출소':'urban',
+ '편의점':'urban','슈퍼마켓':'urban','버스정류장':'urban','주차장':'urban'};
+const PT_FLD=[['FAC_NM','C',150,0],['FAC_TYPE','C',45,0],['FAC_CAT','C',45,0],
+              ['FAC_SUB','C',60,0],['EMD_NM','C',45,0],['SGG_NM','C',30,0],
+              ['LAT','N',14,7],['LON','N',14,7]];
+function buildPtLayer(){
+  const src=[];
+  FAC_DATA.forEach(r=>{
+    let sub=r[4]||'';
+    if(['edu','care','welfare','health','culture','urban'].indexOf(sub)>=0) sub='';
+    src.push([r[0],r[3],sub,r[1],r[2]]);
+  });
+  if(typeof HAGWON_PTS!=='undefined') HAGWON_PTS.forEach(h=>src.push([h.n,'입시학원','',h.la,h.lo]));
+  if(typeof BUS_PTS!=='undefined')    BUS_PTS.forEach(b=>src.push([b.n,'버스정류장','',b.la,b.lo]));
+  PARKING_PTS.forEach(p=>src.push([p.n,'주차장',(p.type||'')+'/'+(p.fee||''),p.la,p.lo]));
+  const shapes=[], rows=[];
+  src.forEach(([nm,tp,sub,la,lo])=>{
+    if(la==null||lo==null||isNaN(la)||isNaN(lo)) return;
+    const f=emdOf(+lo,+la);
+    shapes.push([+lo,+la]);
+    rows.push([String(nm||'').trim(), tp, FAC_CAT_KO[FAC_TYPE2CAT[tp]]||'기타',
+               String(sub||'').trim(), f?f.nm:'', f?f.rg:'', +(+la).toFixed(7), +(+lo).toFixed(7)]);
+  });
+  return {shapes, rows, fields:PT_FLD};
+}
+
+// ── 레이어 ③: 250m 격자 인구 (폴리곤) ─────────────────────────────────
+const GRID_FLD=[['GRID_ID','C',16,0],['EMD_NM','C',45,0],['SGG_NM','C',30,0],
+  ['POP_TOT','N',10,0],['POP_INF','N',10,0],['POP_ELEM','N',10,0],['POP_MID','N',10,0],
+  ['POP_HIGH','N',10,0],['POP_CHILD','N',10,0],['POP_OLD','N',10,0]];
+function buildGridLayer(){
+  const shapes=[], rows=[];
+  GRID_DATA.forEach((c,i)=>{
+    const x0=c[0],y0=c[1],x1=c[2],y1=c[3];
+    const f=emdOf((x0+x1)/2,(y0+y1)/2);
+    shapes.push([[[x0,y0],[x1,y0],[x1,y1],[x0,y1],[x0,y0]]]);
+    rows.push(['G'+String(i+1).padStart(5,'0'), f?f.nm:'', f?f.rg:'',
+               c[4],c[5],c[6],c[7],c[8],c[9],c[10]]);
+  });
+  return {shapes, rows, fields:GRID_FLD};
+}
+
+// ── CSV ───────────────────────────────────────────────────────────────
+function csvText(header, rows){
+  const esc=v=>{v=(v==null?'':String(v));return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+  return '\uFEFF'+[header,...rows].map(r=>r.map(esc).join(',')).join('\r\n');
+}
+function dlCSV(name, header, rows){
+  _saveBlob(new Blob([csvText(header,rows)],{type:'text/csv;charset=utf-8'}), name);
 }
 function dlPop(){
   dlCSV('제주_읍면동_인구이동외국인_2021_2025.csv',
     ['읍면동','구분','유형','주민등록인구_2021','주민등록인구_2025','연앙인구_2021','연앙인구_2025','출생아수_2021','출생아수_2025','전입_2021','전출_2021','순이동_2021','전입_2025','전출_2025','순이동_2025','등록외국인_2021','등록외국인_2025'],
-    D.map(d=>[d.nm,d.rg,d.tp,d.p21,d.p25,d.m21,d.m25,d.b21,d.b25,d.ji21,d.jo21,d.n21,d.ji24,d.jo24,d.n24,d.f20,d.f24]));
+    D.map(d=>[d.nm,d.rg,d.tp,d.p21,d.p25,d.m21,d.m25,d.b21,d.b25,d.ji21,d.jo21,d.n21,d.ji24,d.jo24,d.n24,d.f21,d.f24]));
 }
 function dlAge(){
   dlCSV('제주_읍면동_연령별인구_2021_2025.csv',
@@ -1356,27 +1803,213 @@ function dlAge(){
     AR.map(a=>a.slice()));
 }
 function dlGrid(){
-  dlCSV('제주_250m격자_인구_202410.csv',
+  dlCSV('제주_250m격자_인구.csv',
     ['경도_min','위도_min','경도_max','위도_max','총인구','유아_0_5세','초등학생','중학생','고등학생','유소년_0_14세','고령_65세이상'],
     GRID_DATA.map(c=>c.slice()));
 }
 function dlBus(){
   dlCSV('제주_버스정류장_좌표.csv',['정류장명','위도','경도'],BUS_PTS.map(b=>[b.n,b.la,b.lo]));
 }
+function dlPk(){
+  dlCSV('제주_주차장_좌표면수_202604.csv',['주차장명','위도','경도','주차면수','요금','구분','읍면동','시'],
+    PARKING_PTS.map(p=>[p.n,p.la,p.lo,p.spaces,p.fee||'',p.type||'',p.d||'',p.city||'']));
+}
 function dlSports(){
-  dlCSV('제주_체육시설_좌표',['시설명','읍면동','구분','위도','경도'],
+  dlCSV('제주_체육시설_좌표.csv',['시설명','읍면동','구분','위도','경도'],
     SPORTS_PTS.map(p=>[p.n,p.d||'',p.k,p.la,p.lo]));
 }
-function dlGeoJSON(){
-  const blob=new Blob([JSON.stringify(GEO_DATA)],{type:'application/geo+json;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download='제주_읍면동_경계.geojson';a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),4000);
+function dlEmdCSV(){
+  const L=buildEmdLayer();
+  dlCSV('제주_읍면동_전체지표.csv', EMD_FLD.map(f=>f[0]+' ('+f[4]+')'), L.rows);
 }
-function dlPk(){
-  dlCSV('제주_주차장_좌표면수_202604.csv',['주차장명','위도','경도','주차면수','요금','구분','시'],
-    PARKING_PTS.map(p=>[p.n,p.la,p.lo,p.spaces,p.fee||'',p.type||'',p.d||'',p.city||'']));
+function dlFieldDef(){
+  dlCSV('제주_SHP_필드정의서.csv',['레이어','SHP필드명','한글 지표명','자료형'],
+    [...EMD_FLD.map(f=>['JEJU_EMD_INDICATORS',f[0],f[4],f[1]==='C'?'문자':'숫자']),
+     ...PT_FLD.map(f=>['JEJU_FACILITY_PTS',f[0],
+       ({FAC_NM:'시설명',FAC_TYPE:'시설유형',FAC_CAT:'분야',FAC_SUB:'세부구분',
+         EMD_NM:'읍면동',SGG_NM:'시',LAT:'위도',LON:'경도'})[f[0]],f[1]==='C'?'문자':'숫자']),
+     ...GRID_FLD.map(f=>['JEJU_GRID250_POP',f[0],
+       ({GRID_ID:'격자ID',EMD_NM:'읍면동',SGG_NM:'시',POP_TOT:'총인구',POP_INF:'유아(0~5세)',
+         POP_ELEM:'초등학생',POP_MID:'중학생',POP_HIGH:'고등학생',POP_CHILD:'유소년(0~14세)',
+         POP_OLD:'고령(65세+)'})[f[0]],f[1]==='C'?'문자':'숫자'])]);
+}
+
+// ── SHP 다운로드 ──────────────────────────────────────────────────────
+function _dlBusy(on, msg){
+  const b=document.getElementById('btn-dl');
+  if(b) b.textContent = on ? (msg||'⏳ 생성 중…') : '⬇ 자료 다운로드';
+}
+async function _dlShp(kind){
+  _dlBusy(true);
+  try{
+    await new Promise(r=>setTimeout(r,30));
+    let base, L, type;
+    if(kind==='emd'){  base='JEJU_EMD_INDICATORS'; L=buildEmdLayer();  type=5; }
+    else if(kind==='pt'){ base='JEJU_FACILITY_PTS'; L=buildPtLayer();  type=1; }
+    else {             base='JEJU_GRID250_POP';  L=buildGridLayer(); type=5; }
+    const files=shpFiles(base, type, L.shapes, L.fields, L.rows);
+    _saveBlob(await zipBuild(files), base+'.zip');
+  }catch(e){ alert('SHP 생성 중 오류가 발생했습니다: '+e.message); }
+  _dlBusy(false);
+}
+function dlShpEmd(){ _dlShp('emd'); }
+function dlShpPt(){ _dlShp('pt'); }
+function dlShpGrid(){ _dlShp('grid'); }
+
+function dlGeoJSON(){
+  _saveBlob(new Blob([JSON.stringify(GEO_DATA)],{type:'application/geo+json;charset=utf-8'}),
+            '제주_읍면동_경계.geojson');
+}
+
+// ══ [v24] 통합본 ─ 모든 레이어를 하나로 합친 버전 ═══════════════════════
+// Shapefile 규격상 하나의 .shp 에는 한 가지 도형유형(점/면)만 담을 수 있습니다.
+//  · 통합 GeoJSON   : 점·면을 섞을 수 있어 3개 레이어를 파일 1개로 완전 통합
+//  · 통합 폴리곤 SHP : 읍면동 + 250m 격자를 하나의 면 레이어로 통합 (LAYER 필드로 구분)
+// ═══════════════════════════════════════════════════════════════════════
+function _r6(v){ return Math.round(v*1e6)/1e6; }
+
+// 링 배열({rings,outer}) → GeoJSON MultiPolygon 좌표
+function _ringsToMulti(rr){
+  const out=[]; let cur=null;
+  rr.rings.forEach((r,i)=>{
+    const ring=r.map(p=>[_r6(p[0]),_r6(p[1])]);
+    if(rr.outer[i]){ cur=[ring]; out.push(cur); }
+    else if(cur){ cur.push(ring); }
+  });
+  return out;
+}
+
+function buildAllGeoJSON(){
+  const emd=buildEmdLayer(), pt=buildPtLayer(), gr=buildGridLayer();
+  const feats=[];
+  emd.shapes.forEach((sh,i)=>{
+    const pr={LAYER:'읍면동지표'};
+    EMD_FLD.forEach((f,k)=>pr[f[0]]=emd.rows[i][k]);
+    feats.push({type:'Feature',properties:pr,
+      geometry:{type:'MultiPolygon',coordinates:_ringsToMulti(sh)}});
+  });
+  pt.shapes.forEach((xy,i)=>{
+    const pr={LAYER:'시설포인트'};
+    PT_FLD.forEach((f,k)=>pr[f[0]]=pt.rows[i][k]);
+    feats.push({type:'Feature',properties:pr,
+      geometry:{type:'Point',coordinates:[_r6(xy[0]),_r6(xy[1])]}});
+  });
+  gr.shapes.forEach((sh,i)=>{
+    const pr={LAYER:'250m격자인구'};
+    GRID_FLD.forEach((f,k)=>pr[f[0]]=gr.rows[i][k]);
+    feats.push({type:'Feature',properties:pr,
+      geometry:{type:'Polygon',coordinates:sh.map(r=>r.map(p=>[_r6(p[0]),_r6(p[1])]))}});
+  });
+  return {type:'FeatureCollection',
+    name:'JEJU_ALL_LAYERS',
+    crs:{type:'name',properties:{name:'urn:ogc:def:crs:OGC:1.3:CRS84'}},
+    features:feats};
+}
+
+// 통합 폴리곤 SHP : 읍면동(43) + 250m 격자(6,023)
+const MERGE_GRID_FLD=[['GRID_ID','C',16,0],['POP_TOT','N',10,0],['POP_INF','N',10,0],
+  ['POP_ELEM','N',10,0],['POP_MID','N',10,0],['POP_HIGH','N',10,0],
+  ['POP_CHILD','N',10,0],['POP_OLD','N',10,0]];
+function buildMergedPolyLayer(){
+  const emd=buildEmdLayer(), gr=buildGridLayer();
+  const fields=[['LAYER','C',18,0], ...emd.fields, ...MERGE_GRID_FLD];
+  const nE=emd.fields.length, nG=MERGE_GRID_FLD.length;
+  const shapes=[], rows=[];
+  emd.shapes.forEach((sh,i)=>{
+    shapes.push(sh);
+    rows.push(['읍면동지표', ...emd.rows[i], ...MERGE_GRID_FLD.map(f=>f[1]==='C'?'':0)]);
+  });
+  gr.shapes.forEach((sh,i)=>{
+    shapes.push(sh);
+    const blank=emd.fields.map((f,k)=>{
+      if(f[0]==='EMD_NM') return gr.rows[i][1];
+      if(f[0]==='SGG_NM') return gr.rows[i][2];
+      return f[1]==='C'?'':0;
+    });
+    // GRID_ID + POP_* (gr.rows: [GRID_ID,EMD_NM,SGG_NM,POP_TOT...])
+    const gvals=[gr.rows[i][0], ...gr.rows[i].slice(3)];
+    rows.push(['250m격자인구', ...blank, ...gvals]);
+  });
+  return {shapes, rows, fields};
+}
+
+async function dlAllGeoJSON(){
+  _dlBusy(true,'⏳ 통합 GeoJSON 생성 중…');
+  try{
+    await new Promise(r=>setTimeout(r,30));
+    const fc=buildAllGeoJSON();
+    _saveBlob(new Blob([JSON.stringify(fc)],{type:'application/geo+json;charset=utf-8'}),
+              'JEJU_ALL_LAYERS.geojson');
+  }catch(e){ alert('통합 GeoJSON 생성 중 오류: '+e.message); }
+  _dlBusy(false);
+}
+async function dlMergedPolyShp(){
+  _dlBusy(true,'⏳ 통합 폴리곤 SHP 생성 중…');
+  try{
+    await new Promise(r=>setTimeout(r,30));
+    const L=buildMergedPolyLayer();
+    _saveBlob(await zipBuild(shpFiles('JEJU_MERGED_POLYGON',5,L.shapes,L.fields,L.rows)),
+              'JEJU_MERGED_POLYGON.zip');
+  }catch(e){ alert('통합 폴리곤 SHP 생성 중 오류: '+e.message); }
+  _dlBusy(false);
+}
+
+async function dlAllPackage(){
+  _dlBusy(true,'⏳ 전체 패키지 생성 중…');
+  try{
+    await new Promise(r=>setTimeout(r,30));
+    const emd=buildEmdLayer(), pt=buildPtLayer(), gr=buildGridLayer();
+    const files=[
+      ...shpFiles('SHP/JEJU_EMD_INDICATORS',5,emd.shapes,emd.fields,emd.rows),
+      ...shpFiles('SHP/JEJU_FACILITY_PTS',  1,pt.shapes, pt.fields, pt.rows),
+      ...shpFiles('SHP/JEJU_GRID250_POP',   5,gr.shapes, gr.fields, gr.rows),
+      {name:'SHP/JEJU_EMD_BOUNDARY.geojson', data:_u8(JSON.stringify(GEO_DATA))},
+      {name:'CSV/읍면동_전체지표.csv', data:_u8(csvText(EMD_FLD.map(f=>f[0]+' ('+f[4]+')'), emd.rows))},
+      {name:'CSV/시설포인트.csv', data:_u8(csvText(PT_FLD.map(f=>f[0]), pt.rows))},
+      {name:'CSV/250m격자인구.csv', data:_u8(csvText(GRID_FLD.map(f=>f[0]), gr.rows))},
+      {name:'통합본/JEJU_ALL_LAYERS.geojson', data:_u8(JSON.stringify(buildAllGeoJSON()))},
+      ...(()=>{const m=buildMergedPolyLayer();
+            return shpFiles('통합본/JEJU_MERGED_POLYGON',5,m.shapes,m.fields,m.rows);})(),
+      {name:'README.txt', data:_u8(DL_README)}
+    ];
+    _saveBlob(await zipBuild(files), '제주_지역균형발전_GIS_자료.zip');
+  }catch(e){ alert('패키지 생성 중 오류가 발생했습니다: '+e.message); }
+  _dlBusy(false);
+}
+
+const DL_README =
+'제주 지역균형발전 GIS 자료\r\n'+
+'==========================\r\n\r\n'+
+'좌표계 : EPSG:4326 (WGS84 경위도) — .prj 포함\r\n'+
+'인코딩 : UTF-8 — .cpg 포함 (QGIS 한글 자동 인식)\r\n\r\n'+
+'[SHP 폴더]\r\n'+
+' 1) JEJU_EMD_INDICATORS  폴리곤 43개 읍면동 · 107개 필드\r\n'+
+'    - 인구/연령/산업경제/교육/보육/사회복지/보건의료/문화관광/환경도시교통 전 지표\r\n'+
+' 2) JEJU_FACILITY_PTS    포인트 · 전 시설 통합 (FAC_TYPE으로 필터링)\r\n'+
+' 3) JEJU_GRID250_POP     폴리곤 · 250m 격자 인구\r\n'+
+' 4) JEJU_EMD_BOUNDARY.geojson  속성 없는 경계 전용\r\n\r\n'+
+'[통합본 폴더]\r\n'+
+' 5) JEJU_ALL_LAYERS.geojson  3개 레이어를 파일 1개로 완전 통합 (점+면 혼합)\r\n'+
+'    - LAYER 속성으로 구분 : 읍면동지표 / 시설포인트 / 250m격자인구\r\n'+
+' 6) JEJU_MERGED_POLYGON.shp  읍면동 + 250m 격자 통합 면 레이어 (LAYER 필드로 구분)\r\n'+
+'    ※ SHP 규격상 한 파일에 점과 면을 함께 담을 수 없어, 점 레이어는 별도입니다.\r\n'+
+'      점까지 한 파일로 보시려면 JEJU_ALL_LAYERS.geojson 을 사용하십시오.\r\n\r\n'+
+'필드 접미 규칙 : _N 개소 / _R 750m 반경 인구비율(%) / _D 인구가중 접근거리(m)\r\n'+
+'필드명-한글 대응표는 다운로드 메뉴의 [SHP 필드정의서]를 내려받으십시오.\r\n\r\n'+
+'[QGIS 사용법]\r\n'+
+' 1. 압축을 푼 뒤 .shp 파일을 QGIS 캔버스로 끌어다 놓습니다.\r\n'+
+' 2. 한글이 깨지면 레이어 속성 > 원본 > 인코딩을 UTF-8로 지정합니다.\r\n'+
+' 3. 주제도 : 레이어 속성 > 심볼 > 단계구분 > 값(예: OLD_R25) 선택\r\n'+
+' 4. 포인트 필터 : 레이어 우클릭 > 필터 > "FAC_TYPE" = \'경로당\'\r\n';
+
+if(!DL_ENABLED){document.addEventListener('DOMContentLoaded',()=>{
+  const w=document.getElementById('dl-wrap'); if(w)w.style.display='none';});}
+function toggleDlMenu(e){
+  e.stopPropagation();
+  const m=document.getElementById('dl-menu');
+  const open=m.style.display!=='none';
+  m.style.display=open?'none':'flex';
+  if(!open)document.addEventListener('click',()=>m.style.display='none',{once:true});
 }
 
 // ── 시설 마커 레이어 ──
@@ -8882,7 +9515,7 @@ function renderBirth(){
   <div class="kpi-grid c4">
     ${kcard('2025 출생아수',tb25.toLocaleString()+'명',`2021년 ${tb21.toLocaleString()}명`)}
     ${kcard('출생 증감',`<span style="color:#1a1a1a">${(tb25-tb21).toLocaleString()}</span>명`,'2021→2025')}
-    ${kcard('2025 조출생률',`${tcbr25.toFixed(2)}<span style="font-size:12px;font-weight:400">‰</span>`,`출생 3,281명 / 연앙인구 663,817명<br>'21 출생, '25 출생, '21 조출생률(‰), '25 조출생률(‰)`)}
+    ${kcard('2025 조출생률',`${tcbr25.toFixed(2)}<span style="font-size:12px;font-weight:400">‰</span>`,`출생 ${tb25.toLocaleString()}명 / 연앙인구 ${Math.round(tm25).toLocaleString()}명`)}
     ${kcard('조출생률 변화',`<span style="color:#1a1a1a">${(tcbr25-tcbr21).toFixed(2)}‰p</span>`,'2021→2025')}
   </div>
   <div class="twrap"><div class="thead-row">
@@ -9185,19 +9818,19 @@ function buildDetailHTML(d){
         <td class="uv-grp uv-edu uv-cat-top" rowspan="8">교육</td>
         <td class="uv-cat uv-cat-top" rowspan="3" style="background:#fefce8">교육<br>(학교)</td>
         <td class="uv-item uv-cat-top">초등학교</td>
-        <td class="uv-val">${nv(ed.e_tot)}개 <span class="uv-sub">국${nv(ed.e_pub)}·사${nv(ed.e_prv)}</span></td>
+        <td class="uv-val">${nv(ed.e_tot)}개 <span class="uv-sub">국립 ${nv(ed.e_pub)} · 사립 ${nv(ed.e_prv)}</span></td>
         <td class="uv-rate">${pvc(ed.e_rat)}</td>
         <td class="uv-note">${mf(ed.e_dst)}</td>
       </tr>
       <tr>
         <td class="uv-item">중학교</td>
-        <td class="uv-val">${nv(ed.m_tot)}개 <span class="uv-sub">국${nv(ed.m_pub)}·사${nv(ed.m_prv)}</span></td>
+        <td class="uv-val">${nv(ed.m_tot)}개 <span class="uv-sub">국립 ${nv(ed.m_pub)} · 사립 ${nv(ed.m_prv)}</span></td>
         <td class="uv-rate">${pvc(ed.m_rat)}</td>
         <td class="uv-note">${mf(ed.m_dst)}</td>
       </tr>
       <tr>
         <td class="uv-item">고등학교</td>
-        <td class="uv-val">${nv(ed.h_tot)}개 <span class="uv-sub">국${nv(ed.h_pub)}·사${nv(ed.h_prv)}</span></td>
+        <td class="uv-val">${nv(ed.h_tot)}개 <span class="uv-sub">국립 ${nv(ed.h_pub)} · 사립 ${nv(ed.h_prv)}</span></td>
         <td class="uv-rate">${pvc(ed.h_rat)}</td>
         <td class="uv-note">${mf(ed.h_dst)}</td>
       </tr>
