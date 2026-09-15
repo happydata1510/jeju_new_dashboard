@@ -1231,10 +1231,16 @@ map.createPane('gridPane');map.getPane('gridPane').style.zIndex=350;
 map.createPane('districtPane');map.getPane('districtPane').style.zIndex=450;
 map.createPane('markerPane2');map.getPane('markerPane2').style.zIndex=600;
 L.control.zoom({position:'bottomright'}).addTo(map);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png',{
-  attribution:'&copy; OpenStreetMap &copy; CARTO',subdomains:'abcd',maxZoom:19,
-  className:'map-tile-layer'
+// [v28] 배경지도 교체: CARTO 타일이 'API required' 문구를 표시하기 시작해(키 요구) 키가 필요 없는 Esri 회색 배경지도로 변경
+//        World_Light_Gray_Base = 지명 표기 없는 연회색 배경 (기존 voyager_nolabels 와 같은 성격)
+const baseTiles=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',{
+  attribution:'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, OpenStreetMap contributors',
+  maxNativeZoom:16,maxZoom:19,className:'map-tile-layer'
 }).addTo(map);
+// 예비: Esri 타일 오류 시 OpenStreetMap 표준 타일로 자동 전환
+let _tileErr=0;
+baseTiles.on('tileerror',()=>{ if(++_tileErr>=6 && !window._fallbackTiles){ window._fallbackTiles=true; map.removeLayer(baseTiles);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors',maxZoom:19,className:'map-tile-layer'}).addTo(map); } });
 
 let geoLayer=null,selectedLayer=null,selectedNm=null;
 let gridLayer=null,labelMarkers=[];
