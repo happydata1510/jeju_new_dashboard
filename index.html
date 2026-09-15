@@ -1231,10 +1231,13 @@ map.createPane('gridPane');map.getPane('gridPane').style.zIndex=350;
 map.createPane('districtPane');map.getPane('districtPane').style.zIndex=450;
 map.createPane('markerPane2');map.getPane('markerPane2').style.zIndex=600;
 L.control.zoom({position:'bottomright'}).addTo(map);
-// [v28] 배경지도 교체: CARTO 타일이 'API required' 문구를 표시하기 시작해(키 요구) 키가 필요 없는 Esri 회색 배경지도로 변경
-//        World_Light_Gray_Base = 지명 표기 없는 연회색 배경 (기존 voyager_nolabels 와 같은 성격)
+// [v28] 배경지도: API 키가 필요 없는 Esri 연회색 배경지도(지명 표기 없음)만 사용
+// 안전장치: 어떤 경로로든 키를 요구하는 타일 주소가 들어오면 Esri 주소로 강제 치환
+const SAFE_TILE_URL='https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+(function(){ const orig=L.tileLayer; L.tileLayer=function(url,opt){ if(/basemaps|apikey|rastertiles/i.test(String(url))) url=SAFE_TILE_URL; return orig.call(L,url,opt); };
+  Object.assign(L.tileLayer, orig); })();
 const baseTiles=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',{
-  attribution:'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, OpenStreetMap contributors',
+  attribution:'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, OpenStreetMap contributors &middot; <span id="ver-tag">대시보드 v28</span>',
   maxNativeZoom:16,maxZoom:19,className:'map-tile-layer'
 }).addTo(map);
 // 예비: Esri 타일 오류 시 OpenStreetMap 표준 타일로 자동 전환
