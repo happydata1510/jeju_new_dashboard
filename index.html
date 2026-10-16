@@ -696,7 +696,7 @@ tr.selected-row .emd-nm{color:var(--green);font-weight:700;}
         <button class="grid-opt" style="flex:1;text-align:center" onclick="dlSample('csv')">CSV</button>
         <button class="grid-opt" style="flex:1.5;text-align:center;background:rgba(45,138,85,.35);border-color:rgba(74,222,128,.5)" onclick="dlSample('all3')">3형식 모두</button>
       </div>
-      <div style="font-size:8.5px;color:rgba(255,255,255,.4);padding:2px 2px 0;line-height:1.5">SHP = .shp .shx .dbf .prj .cpg .qmd (ZIP) · GeoJSON = 파일 1개 · CSV = cp949(엑셀)<br>필드 : 시설명 · 세부유형 · x · y (샘플과 동일)</div>
+      <div style="font-size:8.5px;color:rgba(255,255,255,.4);padding:2px 2px 0;line-height:1.5">SHP = .shp .shx .dbf .prj .cpg .qmd (ZIP) · GeoJSON = 파일 1개 · CSV = cp949(엑셀)<br>필드 : 시설명 · 세부유형 · x · y · <b style="color:#fff">읍면동 · 시군구</b></div>
     </div>
   </div>
   <div style="flex:1"></div>
@@ -1237,7 +1237,7 @@ const SAFE_TILE_URL='https://server.arcgisonline.com/ArcGIS/rest/services/Canvas
 (function(){ const orig=L.tileLayer; L.tileLayer=function(url,opt){ if(/basemaps|apikey|rastertiles/i.test(String(url))) url=SAFE_TILE_URL; return orig.call(L,url,opt); };
   Object.assign(L.tileLayer, orig); })();
 const baseTiles=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',{
-  attribution:'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, OpenStreetMap contributors &middot; <span id="ver-tag">대시보드 v28</span>',
+  attribution:'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, OpenStreetMap contributors &middot; <span id="ver-tag">대시보드 v29</span>',
   maxNativeZoom:16,maxZoom:19,className:'map-tile-layer'
 }).addTo(map);
 // 예비: Esri 타일 오류 시 OpenStreetMap 표준 타일로 자동 전환
@@ -1948,7 +1948,10 @@ async function dlMergedPolyShp(){
 
 // ══ [v27] 자료 다운로드 — 모든 자료를 센터 샘플 규격으로 (SHP · GeoJSON · CSV) ══════════
 //   샘플 규격 : 파일명 2025_<layer> · SHP 필드 <layer>_nm(C254)·stype_nm(C254)·x(N24.15)·y(N24.15)
-//               GeoJSON name+crs(CRS84) · CSV cp949 7열(시설명·세부시설명·주소·X좌표·Y좌표·유형·등록일) · .qmd 동봉
+//               GeoJSON name+crs(CRS84) · CSV cp949(시설명·세부시설명·주소·X좌표·Y좌표·유형·등록일) · .qmd 동봉
+//   [v29] 센터 요청 반영 : 시설 점 레이어에 emd_nm(읍면동)·sgg_nm(시군구) 2개 필드 추가
+//          값은 읍면동 경계 폴리곤과의 점-내포 판정(emdOf)으로 산출 — 별도 공간결합이 필요 없습니다.
+//          CSV는 샘플 7열 순서를 그대로 두고 뒤에 읍면동·시군구를 덧붙였습니다.
 const FAC_YEAR=2025;
 const FAC_LAYERS=[["school", "school_nm", ["초등학교", "중학교", "고등학교"], "학교(초·중·고)", "한국지방교육행정연구재단"], ["academy", "academy_nm", ["입시학원"], "사설학원", "공공데이터포털(소상공인시장진흥공단)"], ["kindergarten", "kinder_nm", ["유치원"], "유치원", "유치원알리미"], ["daycare", "daycare_nm", ["어린이집"], "어린이집", "어린이집정보공개포털"], ["welfare", "welfare_nm", ["종합사회복지시설", "다문화가족지원시설", "장애인복지시설"], "사회복지시설(종합·다문화·장애인)", "제주복지넷"], ["youth", "youth_nm", ["청소년복지시설", "청소년수련시설", "지역아동센터"], "아동·청소년시설", "제주복지넷"], ["senior", "senior_nm", ["노인복지관", "재가노인복지시설", "노인복지회관", "경로당"], "노인복지시설", "제주복지넷"], ["healthcenter", "health_nm", ["보건소", "보건지소", "보건진료소"], "공공보건기관", "보건의료빅데이터개방시스템"], ["hospital", "hosp_nm", ["병의원", "종합병원"], "의료기관(병의원·종합병원)", "보건의료빅데이터개방시스템"], ["pharmacy", "pharm_nm", ["약국"], "약국", "보건의료빅데이터개방시스템"], ["culture", "culture_nm", ["공공도서관", "작은도서관", "생활문화센터", "박물관", "미술관"], "문화시설", "전국문화기반시설총람"], ["sports", "sports_nm", ["공공체육시설", "민간체육시설"], "체육시설(공공·민간)", "공공데이터포털(전국체육시설 현황 표준데이터)"], ["park", "park_nm", ["생활공원", "주제공원"], "공원(생활·주제)", "공공데이터포털(전국도시공원정보표준데이터)"], ["police", "police_nm", ["경찰서", "지구대", "파출소"], "치안시설", "제주지방경찰청"], ["firestation", "fire_nm", ["소방서", "119안전센터"], "소방시설", "공공데이터포털(소방청 전국소방서 좌표현황)"], ["retail", "retail_nm", ["편의점", "슈퍼마켓"], "종합소매(편의점·슈퍼마켓)", "소상공인시장진흥공단"], ["busstop", "bus_nm", ["버스정류장"], "버스정류장", "국토교통부 전국정류장현황"], ["parking", "parking_nm", ["주차장"], "주차장", "공공데이터포털(전국주차장정보표준데이터)"]];
 const POLY_LAYERS=[
@@ -1977,12 +1980,28 @@ function facStype(p){
   if(p.t==='주차장') return p.sub||'주차장';
   return p.t;
 }
+// [v29] 다운로드용 읍면동 판정 ─ emdOf(경계 내포 → 최근접)와 동일하되,
+//   제주 경계에서 10km 이상 떨어진 좌표(원자료의 좌표 오류·경위도 뒤바뀜 등)에는
+//   엉뚱한 읍면동이 찍히지 않도록 공백으로 둡니다. 해안선 바로 바깥(0~3km)은 그대로 채웁니다.
+function facEmd(lon,lat){
+  const f=emdOf(lon,lat); if(!f) return null;
+  const kx=Math.cos(lat*Math.PI/180)*111320, ky=110540;
+  let bd=Infinity;
+  for(const g of _emdIndex()){ const b=g.bb;
+    const dx = lon<b[0] ? b[0]-lon : lon>b[2] ? lon-b[2] : 0;
+    const dy = lat<b[1] ? b[1]-lat : lat>b[3] ? lat-b[3] : 0;
+    const dd = (dx*kx)**2 + (dy*ky)**2;
+    if(dd<bd) bd=dd;
+  }
+  return bd<=1e8 ? f : null;        // (10,000m)² = 1e8
+}
 let _TYPE_CACHE=null;
 function buildTypeLayers(){
   if(_TYPE_CACHE) return _TYPE_CACHE;
   const by={}; collectFacPoints().forEach(p=>{ (by[p.layer]=by[p.layer]||[]).push(p); });
   _TYPE_CACHE=FAC_LAYERS.map(([key,nmf,types,title,src])=>({key,nmf,title,src,
-    rows:(by[key]||[]).map(p=>({n:String(p.n||'').trim(),st:facStype(p),lo:+p.lo,la:+p.la}))}));
+    rows:(by[key]||[]).map(p=>{ const f=facEmd(+p.lo,+p.la);
+      return {n:String(p.n||'').trim(),st:facStype(p),lo:+p.lo,la:+p.la,emd:f?f.nm:'',sgg:f?f.rg:''}; })}));
   return _TYPE_CACHE;
 }
 
@@ -2049,24 +2068,26 @@ function facQmd(id,title,abstract){
 }
 const _GJ=(name,feats)=>({type:'FeatureCollection',name,crs:{type:'name',properties:{name:'urn:ogc:def:crs:OGC:1.3:CRS84'}},features:feats});
 
-// ── 시설(점) 레이어 파일 — 샘플과 동일한 4개 필드 ──
+// ── 시설(점) 레이어 파일 — 샘플 4개 필드 + 읍면동·시군구 2개 (센터 요청, v29) ──
 function typeLayerFiles(L, fmt, dir){
   const base=`${FAC_YEAR}_${L.key}`;
   const abstract=`제주특별자치도 지역균형발전수준(${FAC_YEAR}) · ${L.title} · 출처: ${L.src} · EPSG:4326(WGS84) · ${L.rows.length}건`;
   if(fmt==='shp'){
-    const fields=[[L.nmf,'C',254,0],['stype_nm','C',254,0],['x','N',24,15],['y','N',24,15]];
-    const files=shpFiles(dir+base,1,L.rows.map(r=>[r.lo,r.la]),fields,L.rows.map(r=>[r.n,r.st,r.lo,r.la]));
+    const fields=[[L.nmf,'C',254,0],['stype_nm','C',254,0],['x','N',24,15],['y','N',24,15],
+                  ['emd_nm','C',50,0],['sgg_nm','C',30,0]];
+    const files=shpFiles(dir+base,1,L.rows.map(r=>[r.lo,r.la]),fields,L.rows.map(r=>[r.n,r.st,r.lo,r.la,r.emd,r.sgg]));
     files.push({name:dir+base+'.qmd',data:_u8(facQmd(base,L.title,abstract))});
     return files;
   }
   if(fmt==='geojson'){
     const feats=L.rows.map(r=>{ const pr={}; pr[L.nmf]=r.n; pr.stype_nm=r.st; pr.x=r.lo; pr.y=r.la;
+      pr.emd_nm=r.emd; pr.sgg_nm=r.sgg;
       return {type:'Feature',properties:pr,geometry:{type:'Point',coordinates:[r.lo,r.la]}}; });
     return [{name:dir+base+'.geojson',data:_u8(JSON.stringify(_GJ(L.key,feats)))},
             {name:dir+base+'.qmd',data:_u8(facQmd(base,L.title,abstract))}];
   }
-  return [{name:dir+base+'.csv',data:csvBytes(['시설명','세부시설명','주소','X좌표','Y좌표','유형','등록일'],
-                                             L.rows.map(r=>[r.n,'','',r.lo,r.la,r.st,'']))}];
+  return [{name:dir+base+'.csv',data:csvBytes(['시설명','세부시설명','주소','X좌표','Y좌표','유형','등록일','읍면동','시군구'],
+                                             L.rows.map(r=>[r.n,'','',r.lo,r.la,r.st,'',r.emd,r.sgg]))}];
 }
 // ── 통계(면) 레이어 파일 — 같은 파일명 규칙 · CSV에는 중심 X좌표/Y좌표 포함 ──
 function _ringsCenter(rings){ let x0=1e18,y0=1e18,x1=-1e18,y1=-1e18;
@@ -2127,7 +2148,15 @@ const DL_README =
 '제주특별자치도 지역균형발전수준 GIS 자료 (센터 샘플 규격)\r\n'+
 '==========================================================\r\n'+
 '좌표계 EPSG:4326(WGS84, .prj 동봉) · SHP/GeoJSON 인코딩 UTF-8(.cpg 동봉) · CSV cp949(엑셀) · QGIS 메타데이터 .qmd 동봉\r\n\r\n'+
-'[시설 레이어(점)] 2025_<layer>  필드 : <layer>_nm(시설명) · stype_nm(세부유형) · x(경도) · y(위도)\r\n'+
+'[시설 레이어(점)] 2025_<layer>\r\n'+
+'  SHP/GeoJSON 필드 : <layer>_nm(시설명) · stype_nm(세부유형) · x(경도) · y(위도) · emd_nm(읍면동) · sgg_nm(시군구)\r\n'+
+'  CSV 열 : 시설명 · 세부시설명 · 주소 · X좌표 · Y좌표 · 유형 · 등록일 · 읍면동 · 시군구\r\n'+
+'  읍면동·시군구는 읍면동 경계와의 점-내포 판정으로 미리 넣어 두었으므로 QGIS에서 공간결합을 하지 않아도 됩니다.\r\n'+
+'  해안선 바로 바깥에 찍힌 좌표는 가장 가까운 읍면동으로 채웠고, 제주에서 10km 이상 벗어난 좌표\r\n'+
+'  (원자료의 좌표 오류 3건)는 잘못된 값이 들어가지 않도록 읍면동·시군구를 비워 두었습니다.\r\n'+
+'  ※ emd_nm 은 좌표를 경계에 넣어 판정한 값입니다. 2025_emd_stat 의 "○○ 개소" 지표는 원자료의\r\n'+
+'     주소 기반 읍면동으로 집계된 값이라, 총계는 같아도 읍면동별 배분이 일부(읍면동 12곳 내외)\r\n'+
+'     ±1건 다를 수 있습니다. 주차장·체육시설·학원은 양쪽이 완전히 일치합니다.\r\n'+
 '  school academy kindergarten daycare welfare youth senior healthcenter hospital pharmacy\r\n'+
 '  culture sports park police firestation retail busstop parking\r\n'+
 '[통계 레이어(면)] 2025_emd_stat(읍면동 경계+지표 107개) · 2025_grid250_pop(250m 격자 인구)\r\n'+
